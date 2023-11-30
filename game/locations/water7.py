@@ -47,6 +47,8 @@ class Harbor(location.SubLocation):
         self.verbs["north"] = self
         self.verbs["south"] = self
         self.verbs["west"] = self
+        self.verbs["map"] = self
+
         self.description_printed = True
 
     def enter(self):
@@ -75,6 +77,117 @@ class Harbor(location.SubLocation):
         if verb == "west":
             config.the_player.next_loc = self.main_location.locations["lightHouse"]
 
+        if verb == "map":
+            self.print_map()
+
+    def print_map(self):
+        map = (
+            "OCEANSide                                                    OCEANSide              "
+            + "\n"
+        )
+        map += (
+            "TTTTTTTTTTTTTTTTT                                           TTTTTTTTTTTTTTTTT        "
+            + "\n"
+        )
+        map += (
+            "TTT~~~~~^^^^^^^~~~~~TTT        LIGHTHOUSE                    TTT~~~~~^^^^^^^~~~~~TTT  "
+            + "\n"
+        )
+        map += (
+            "TTT                    TTT                                 TTT                    TTT  "
+            + "\n"
+        )
+        map += (
+            "NORTH               TTT   T BLUEPRINT ARCHIVES             TTT                     TTT  "
+            + "\n"
+        )
+        map += (
+            "                   TTT^^^^^TTT                              TTT^^^^^^^DOCKS^^^^^^^TTT  "
+            + "\n"
+        )
+        map += (
+            "                TT        TT                             TT          HARBORS       TT "
+            + "\n"
+        )
+        map += (
+            "                T ICEBERG'S TT                           T                        T "
+            + "\n"
+        )
+        map += (
+            "                T  MANSION   TT                          T                         T "
+            + "\n"
+        )
+        map += (
+            "                T             T                         T                          T "
+            + "\n"
+        )
+        map += (
+            "            |              |                        |                           |     "
+            + "\n"
+        )
+        map += (
+            "WORKSHOPS --> |                                         |             DRY DOCK 1   |  "
+            + "\n"
+        )
+        map += (
+            "|    |    |    |                                            & FOREMAN KAKU         |  "
+            + "\n"
+        )
+        map += (
+            "|    |    |    |                                                               |     "
+            + "\n"
+        )
+        map += (
+            "|~~~ |    |    |                                                               |    "
+            + "\n"
+        )
+        map += (
+            "|    |    |    |                                                               |   "
+            + "\n"
+        )
+        map += (
+            "|    |    |    |                                                    ANCIENT      |"
+            + "\n"
+        )
+        map += (
+            "WEST     W   |                                               PLUTON RUINS/-----| "
+            + "\n"
+        )
+        map += (
+            "            |                                                     CLUES     "
+            + "\n"
+        )
+        map += (
+            "            |                                  CENTRAL MARKETS                       "
+            + "\n"
+        )
+        map += (
+            "            |                      5 spaces-->    AND TAVERNS                 "
+            + "\n"
+        )
+        map += (
+            "                20 spaces         RESIDENTIAL DISTRICT<-5 spaces-->|         "
+            + "\n"
+        )
+        map += (
+            "                            |              |                     TTT        "
+            + "\n"
+        )
+        map += (
+            "                            |              |                    TTT         "
+            + "\n"
+        )
+        map += (
+            "                            |              |                   TTT         "
+            + "\n"
+        )
+        map += (
+            "                                25 spaces  25 spaces            TTTTT       "
+            + "\n"
+        )
+
+        print(map)
+
 
 class DryDock1(location.SubLocation):
     def __init__(self, mainlocation):
@@ -84,7 +197,14 @@ class DryDock1(location.SubLocation):
         self.verbs["south"] = self
         self.verbs["west"] = self
         self.verbs["east"] = self
+        self.verbs["map"] = self
+
         self.description_printed = True
+
+        self.event_chance = 50
+        self.events.append(seagull.Seagull())
+        self.events.append(drowned_pirates.DrownedPirates())
+        self.events.append(man_eating_monkeys.ManEatingMonkeys())
 
     def enter(self):
         description = "After working to bring your damaged ship to the central Dry Docks with Foreman Kaku's approval, he criticizes your old and malfunctioning mechanical systems.\n"
@@ -131,6 +251,9 @@ class DryDock1(location.SubLocation):
                 "blueprintArchives"
             ]
 
+        if verb == "map":
+            Harbor.print_map(self)
+
 
 class MarketDistrict(location.SubLocation):
     def __init__(self, mainlocation):
@@ -139,6 +262,12 @@ class MarketDistrict(location.SubLocation):
         self.verbs["north"] = self
         self.verbs["south"] = self
         self.verbs["east"] = self
+        self.verbs["map"] = self
+
+        self.event_chance = 50
+        self.events.append(seagull.Seagull())
+        self.events.append(drowned_pirates.DrownedPirates())
+
         self.description_printed = True
 
     def enter(self):
@@ -174,6 +303,9 @@ class MarketDistrict(location.SubLocation):
         if verb == "east":
             config.the_player.next_loc = self.main_location.locations["workshops"]
 
+        if verb == "map":
+            Harbor.print_map(self)
+
 
 class LightHouse(location.SubLocation):
     def __init__(self, mainlocation):
@@ -181,6 +313,11 @@ class LightHouse(location.SubLocation):
         self.name = "lightHouse"
         self.verbs["east"] = self
         self.verbs["enter"] = self
+        self.verbs["map"] = self
+
+        self.event_chance = 50
+        self.events.append(seagull.Seagull())
+        self.events.append(drowned_pirates.DrownedPirates())
 
         self.description_printed = True
         self.lightHouseUsed = False
@@ -207,6 +344,9 @@ class LightHouse(location.SubLocation):
 
         if verb == "enter":
             self.handleLightHouse()
+
+        if verb == "map":
+            Harbor.print_map(self)
 
     def handleLightHouse(self):
         if not self.lightHouseUsed:
@@ -247,6 +387,12 @@ class IceburghMansion(location.SubLocation):
         super().__init__(mainlocation)
         self.name = "iceburghMansion"
         self.verbs["east"] = self
+        self.verbs["map"] = self
+
+        self.event_chance = 50
+        self.events.append(seagull.Seagull())
+        self.events.append(drowned_pirates.DrownedPirates())
+
         self.description_printed = True
 
     def enter(self):
@@ -256,12 +402,21 @@ class IceburghMansion(location.SubLocation):
         if verb == "east":
             config.the_player.next_loc = self.main_location.locations["dryDock1"]
 
+        if verb == "map":
+            Harbor.print_map(self)
+
 
 class BluePrintArchives(location.SubLocation):
     def __init__(self, mainlocation):
         super().__init__(mainlocation)
         self.name = "blueprintArchive"
         self.verbs["west"] = self
+        self.verbs["map"] = self
+
+        self.event_chance = 50
+        self.events.append(seagull.Seagull())
+        self.events.append(drowned_pirates.DrownedPirates())
+
         self.description_printed = True
 
     def enter(self):
@@ -271,12 +426,21 @@ class BluePrintArchives(location.SubLocation):
         if verb == "west":
             config.the_player.next_loc = self.main_location.locations["marketDistrict"]
 
+        if verb == "map":
+            Harbor.print_map(self)
+
 
 class WorkShops(location.SubLocation):
     def __init__(self, mainlocation):
         super().__init__(mainlocation)
         self.name = "workshops"
         self.verbs["west"] = self
+        self.verbs["map"] = self
+
+        self.event_chance = 50
+        self.events.append(seagull.Seagull())
+        self.events.append(drowned_pirates.DrownedPirates())
+
         self.description_printed = True
 
     def enter(self):
@@ -286,12 +450,21 @@ class WorkShops(location.SubLocation):
         if verb == "west":
             config.the_player.next_loc = self.main_location.locations["fountainOfYouth"]
 
+        if verb == "map":
+            Harbor.print_map(self)
+
 
 class FountainOfYouth(location.SubLocation):
     def __init__(self, mainlocation):
         super().__init__(mainlocation)
         self.name = "fountainOfYouth"
         self.verbs["north"] = self
+        self.verbs["map"] = self
+
+        self.event_chance = 50
+        self.events.append(seagull.Seagull())
+        self.events.append(drowned_pirates.DrownedPirates())
+
         self.description_printed = True
 
     def enter(self):
@@ -300,3 +473,6 @@ class FountainOfYouth(location.SubLocation):
     def process_verb(self, verb, cmd_list, nouns):
         if verb == "north":
             config.the_player.next_loc = self.main_location.locations["marketDistrict"]
+
+        if verb == "map":
+            Harbor.print_map(self)
