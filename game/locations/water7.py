@@ -10,7 +10,7 @@ from game.combat import Monster
 import game.combat as combat
 from game.display import menu
 
-REPAIR_TOOLS_COUNTER = 9
+REPAIR_TOOLS_COUNTER = 0
 
 
 class Water7(location.Location):
@@ -85,8 +85,14 @@ class Harbor(location.SubLocation):
 
         self.description_printed = True
 
-        announce("You can use map command to navigate.")
-        announce("Type go (placename) without any space in between them to go there.")
+        announce("Rules:")
+        announce(
+            "1. You need to find 20 repair tools to repair your ship and get out of the island."
+        )
+        announce("2. You can use map command to navigate.")
+        announce(
+            "3. Type go (placename) without any space in between them to go there."
+        )
 
     def process_verb(self, verb, cmd_list, nouns):
         global REPAIR_TOOLS_COUNTER
@@ -254,26 +260,31 @@ class DryDock1(location.SubLocation):
         self.verbs["enter"] = self
         self.verbs["map"] = self
 
-        self.event_chance = 50
+        self.description_printed = False
+
+        self.event_chance = 25
         self.events.append(seagull.Seagull())
         self.events.append(drowned_pirates.DrownedPirates())
         self.events.append(man_eating_monkeys.ManEatingMonkeys())
 
     def enter(self):
-        description1 = "After working to bring your damaged ship to the central Dry Docks with Foreman Kaku's approval, he criticizes your old and malfunctioning mechanical systems.\n"
-        description2 = "He gestures to the warehouses of salvaged ship parts and challenges your crew to build replacement systems from scratch using your own innovation and limited resources.\n"
-        description3 = "You are tasked with combining bits of broken ships - timber supports, metal plates, barrels, gears, coal engines, ropes and pulleys - to construct new steering, power, and navigation mechanisms for your unresponsive vessel.\n"
-        description4 = "You'll have to calculatedly measure, lift, fasten and position the parts together into functioning apparatuses.\n"
-        description5 = "Kaku's favor depends on whether the new systems operate efficiently when installed."
+        if not self.description_printed:
+            description1 = "After working to bring your damaged ship to the central Dry Docks with Foreman Kaku's approval, he criticizes your old and malfunctioning mechanical systems.\n"
+            description2 = "He gestures to the warehouses of salvaged ship parts and challenges your crew to build replacement systems from scratch using your own innovation and limited resources.\n"
+            description3 = "You are tasked with combining bits of broken ships - timber supports, metal plates, barrels, gears, coal engines, ropes and pulleys - to construct new steering, power, and navigation mechanisms for your unresponsive vessel.\n"
+            description4 = "You'll have to calculatedly measure, lift, fasten and position the parts together into functioning apparatuses.\n"
+            description5 = "Kaku's favor depends on whether the new systems operate efficiently when installed."
 
-        announce(
-            "Kaku's approval is needed for you to access the tools and materials to fix your own ship."
-        )
-        announce(description1)
-        announce(description2)
-        announce(description3)
-        announce(description4)
-        announce(description5)
+            announce(
+                "Kaku's approval is needed for you to access the tools and materials to fix your own ship."
+            )
+            announce(description1)
+            announce(description2)
+            announce(description3)
+            announce(description4)
+            announce(description5)
+
+        self.description_printed = True
 
         global REPAIR_TOOLS_COUNTER
         if REPAIR_TOOLS_COUNTER == 19:
@@ -285,6 +296,8 @@ class DryDock1(location.SubLocation):
             )
             # annpunce that they can now go back to their ship
             REPAIR_TOOLS_COUNTER += 1
+            announce(f"{REPAIR_TOOLS_COUNTER} repair tools collected.")
+            announce("You can go back to your ship.")
 
     def process_verb(self, verb, cmd_list, nouns):
         if verb == "harbor":
@@ -332,7 +345,7 @@ class MarketDistrict(location.SubLocation):
         self.verbs["enter"] = self
         self.verbs["map"] = self
 
-        self.event_chance = 50
+        self.event_chance = 25
         self.events.append(seagull.Seagull())
         self.events.append(drowned_pirates.DrownedPirates())
         self.events.append(man_eating_monkeys.ManEatingMonkeys())
@@ -426,6 +439,7 @@ class MarketDistrict(location.SubLocation):
     def riddleBattleReward(self):
         global REPAIR_TOOLS_COUNTER
         REPAIR_TOOLS_COUNTER += 3
+        announce(f"{REPAIR_TOOLS_COUNTER} repair tools collected.")
 
     def getRiddleAndAnswer(self):
         riddleList = [
@@ -452,7 +466,7 @@ class LightHouse(location.SubLocation):
         self.verbs["enter"] = self
         self.verbs["map"] = self
 
-        self.event_chance = 50
+        self.event_chance = 25
         self.events.append(man_eating_monkeys.ManEatingMonkeys())
         self.events.append(drowned_pirates.DrownedPirates())
 
@@ -546,6 +560,7 @@ class LightHouse(location.SubLocation):
     def poemRiddleReward(self):
         global REPAIR_TOOLS_COUNTER
         REPAIR_TOOLS_COUNTER += 2
+        announce(f"{REPAIR_TOOLS_COUNTER} repair tools collected.")
 
         for i in config.the_player.get_pirates():
             i.health = i.max_health
@@ -578,7 +593,7 @@ class IceburghMansion(location.SubLocation):
         self.IceburghMansionUsed = False
         self.RIDDLE_AMOUNT = 3
 
-        self.event_chance = 50
+        self.event_chance = 25
         self.events.append(seagull.Seagull())
         self.events.append(drowned_pirates.DrownedPirates())
         self.events.append(man_eating_monkeys.ManEatingMonkeys())
@@ -665,6 +680,7 @@ class IceburghMansion(location.SubLocation):
     def riddleBattleReward(self):
         global REPAIR_TOOLS_COUNTER
         REPAIR_TOOLS_COUNTER += 2
+        announce(f"{REPAIR_TOOLS_COUNTER} repair tools collected.")
 
     def getRiddleAndAnswer(self):
         riddleList = [
@@ -694,7 +710,7 @@ class BluePrintArchives(location.SubLocation):
         self.BlueprintArchiveUsed = False
         self.RIDDLE_AMOUNT = 3
 
-        self.event_chance = 50
+        self.event_chance = 25
         self.events.append(seagull.Seagull())
         self.events.append(drowned_pirates.DrownedPirates())
         self.events.append(man_eating_monkeys.ManEatingMonkeys())
@@ -777,6 +793,7 @@ class BluePrintArchives(location.SubLocation):
     def riddleBattleReward(self):
         global REPAIR_TOOLS_COUNTER
         REPAIR_TOOLS_COUNTER += 1
+        announce(f"{REPAIR_TOOLS_COUNTER} repair tools collected.")
 
         for i in config.the_player.get_pirates():
             i.health = i.max_health
@@ -809,7 +826,7 @@ class WorkShops(location.SubLocation):
         self.fireEventDone = False
         self.RIDDLE_AMOUNT = 3
 
-        self.event_chance = 50
+        self.event_chance = 25
         self.events.append(seagull.Seagull())
         self.events.append(drowned_pirates.DrownedPirates())
         self.events.append(man_eating_monkeys.ManEatingMonkeys())
@@ -843,7 +860,10 @@ class WorkShops(location.SubLocation):
 
         if choice == "1":
             announce("You help all the workers escape the fire.")
-            # Need some info for solving the riddle and setting off the fire.
+            announce("After helping the workers you try to extinguish fire.")
+            announce(
+                "To extinguish fire we have to solve a riddle. The town and people's live is in your hand."
+            )
             self.handleFireRiddle()
 
     def handleFireRiddle(self):
@@ -872,6 +892,7 @@ class WorkShops(location.SubLocation):
     def riddleBattleReward(self):
         global REPAIR_TOOLS_COUNTER
         REPAIR_TOOLS_COUNTER += 9
+        announce(f"{REPAIR_TOOLS_COUNTER} repair tools collected.")
 
     def getRiddleAndAnswer(self):
         riddleList = [
@@ -931,7 +952,7 @@ class FountainOfYouth(location.SubLocation):
         self.FountainofYouthUsed = False
         self.RIDDLE_AMOUNT = 3
 
-        self.event_chance = 50
+        self.event_chance = 25
         self.events.append(seagull.Seagull())
         self.events.append(drowned_pirates.DrownedPirates())
         self.events.append(man_eating_monkeys.ManEatingMonkeys())
@@ -1010,6 +1031,7 @@ class FountainOfYouth(location.SubLocation):
     def riddleBattleReward(self):
         global REPAIR_TOOLS_COUNTER
         REPAIR_TOOLS_COUNTER += 2
+        announce(f"{REPAIR_TOOLS_COUNTER} repair tools collected.")
 
     def getRiddleAndAnswer(self):
         riddleList = [
