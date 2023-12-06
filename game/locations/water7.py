@@ -294,7 +294,6 @@ class DryDock1(location.SubLocation):
             announce(
                 "In order for you to fix your ship and navigate the seas, he provides you the last of the repair tools."
             )
-            # annpunce that they can now go back to their ship
             REPAIR_TOOLS_COUNTER += 1
             announce(f"{REPAIR_TOOLS_COUNTER} repair tools collected.")
             announce("You can go back to your ship.")
@@ -440,6 +439,9 @@ class MarketDistrict(location.SubLocation):
         global REPAIR_TOOLS_COUNTER
         REPAIR_TOOLS_COUNTER += 3
         announce(f"{REPAIR_TOOLS_COUNTER} repair tools collected.")
+
+        for i in config.the_player.get_pirates():
+            i.health = i.max_health
 
     def getRiddleAndAnswer(self):
         riddleList = [
@@ -681,6 +683,9 @@ class IceburghMansion(location.SubLocation):
         global REPAIR_TOOLS_COUNTER
         REPAIR_TOOLS_COUNTER += 2
         announce(f"{REPAIR_TOOLS_COUNTER} repair tools collected.")
+
+        for i in config.the_player.get_pirates():
+            i.health = i.max_health
 
     def getRiddleAndAnswer(self):
         riddleList = [
