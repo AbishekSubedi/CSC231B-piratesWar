@@ -66,6 +66,18 @@ class Player (Context):
             for j in range (0, self.world.worldsize):
                 self.seen[i].append(False)
 
+    def add_to_inventory(self, invList):
+        self.inventory = self.inventory + invList
+        self.inventory.sort()
+
+    # New method to collect treasure
+    def collect_treasure(self, treasure):
+        if isinstance(treasure, items.TreasureItem):
+            announce(f"You have found a treasure: {treasure.name} worth {treasure.value} points!")
+            self.add_to_inventory([treasure])
+        else:
+            announce("This is not a treasure item.")
+
     def save_game(self):
         if "jsonpickle" not in sys.modules:
             announce ("jsonpickle hasn't be imported. Saving is impossible.")
@@ -119,24 +131,19 @@ class Player (Context):
             self.status()
         elif (verb == "go"):
             self.go = True
-            if (len(cmd_list) > 1):
-                if (cmd_list[1] == "north"):
-                    self.location.process_verb ("north", cmd_list, nouns)
-                elif (cmd_list[1] == "south"):
-                    self.location.process_verb ("south", cmd_list, nouns)
-                elif (cmd_list[1] == "west"):
-                    self.location.process_verb ("west", cmd_list, nouns)
-                elif (cmd_list[1] == "east"):
-                    self.location.process_verb ("east", cmd_list, nouns)
-                elif (cmd_list[1] == "ashore" and self.location == self.ship):
-                    if self.ship.get_loc ().visitable == True:
-                        self.ship.process_verb ("anchor", cmd_list, nouns)
-                        self.ship.get_loc ().visit()
+            if len(cmd_list) > 1:
+                if cmd_list[1] == "ashore" and self.location == self.ship:
+                    if self.ship.get_loc().visitable == True:
+                        self.ship.process_verb("anchor", cmd_list, nouns)
+                        self.ship.get_loc().visit()
                     else:
                         announce("There's nowhere to go ashore.")
                         self.go = False
+                else:
+                    self.location.process_verb(cmd_list[1], cmd_list, nouns)
+
         else:
-            announce ("Error: Player object does not understand verb " + verb)
+            announce("Error: Player object does not understand verb " + verb)
             pass
 
     @staticmethod
@@ -155,7 +162,7 @@ class Player (Context):
             for k, v in c.nouns.items():
                 nouns[k] = v
 
-        cmd = input ("what is your command: ")
+        cmd = input ("\nWhat is your command: ")
         cmd_list = cmd.split()   # split on whitespace
 
         if(len(cmd_list) > 0):
@@ -184,7 +191,7 @@ class Player (Context):
         self.go = False
 
         if (self.reporting):
-            announce ("Captain's Log: Day " + str(self.world.get_day()),pause=False)
+            announce ("☠️ ⚔️  Captain's Log: Day " + str(self.world.get_day()),pause=False)
             self.status()
 
         if (self.ship.get_food()<0):
@@ -206,11 +213,11 @@ class Player (Context):
         self.gameInProgress = False
 
     def status (self):
-        announce ("The ship is at location ", end="",pause=False)
+        announce ("---> The ship is at location ", end="",pause=False)
         loc = self.ship.get_loc()
         announce (str(loc.get_x()) + ", " + str(loc.get_y()),pause=False)
-        announce ("Food stores are at: " + str (self.ship.get_food()),pause=False)
-        announce ("Powder stores are at: " + str (self.powder//self.CHARGE_SIZE) + " cannon " + str (self.powder%self.CHARGE_SIZE) + " sidearm",pause=False)
+        announce ("---> Food stores are at: " + str (self.ship.get_food()),pause=False)
+        announce ("---> Powder stores are at: " + str (self.powder//self.CHARGE_SIZE) + " cannon " + str (self.powder%self.CHARGE_SIZE) + " sidearm",pause=False)
         self.ship.print ()
         for crew in self.get_pirates():
             crew.print()
@@ -284,10 +291,13 @@ class Player (Context):
                     print ("?", end="")
             print ()
 
-    def print_inventory (self):
+    def print_inventory(self):
         for i in self.inventory:
-            print (i)
-        print ()
+            item_desc = str(i)
+            if isinstance(i, items.TreasureItem):
+                item_desc += f" (Treasure worth {i.value} shillings)"
+            print(item_desc)
+        print()
 
     @staticmethod
     def game_over ():
@@ -310,7 +320,8 @@ class Player (Context):
                 config.the_player.add_to_inventory(c.items)
                 c.items = []
         for t in config.the_player.inventory:
-            score += t.getValue()
+            if isinstance(t, items.TreasureItem):
+                score += t.value  # Add treasure value to score
 
         score = score*multiplier
         f.write(now.strftime("%A %B %d, %Y") + " " + str(score) + " points\n")

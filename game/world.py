@@ -5,6 +5,7 @@ from game.events import *
 import game.ship as ship
 import game.context as context
 from game.display import announce
+from game.locations.mystic_island import MysticIsland  # Import MysticIsland
 import game.config as config
 import game.combat as Combat
 
@@ -35,7 +36,7 @@ class World (context.Context):
         self.locs[self.homex][self.homey] = homeport.HomePort (self.homex, self.homey, self)
 
         #Add new islands to this list:
-        island_list = [island.Island]
+        island_list = [island.Island, MysticIsland]
         for cur_island in island_list:
             placed = False
             while placed == False:
@@ -51,7 +52,7 @@ class World (context.Context):
         self.locs[self.startx+1][self.starty] = whirl
 
         #Test island: always start off next to a test island. Swap in your island to test yours.
-        testland = island.Island (self.startx, self.starty+1, self)
+        testland = MysticIsland (self.startx, self.starty+1, self)
         self.locs[self.startx][self.starty+1] = testland
 
         # Peaceful island directly to the right of the spawning location.
