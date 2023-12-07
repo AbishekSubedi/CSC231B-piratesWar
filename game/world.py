@@ -4,6 +4,7 @@ from game.events import *
 import game.ship as ship
 import game.context as context
 from game.display import announce
+from game.locations.mystic_island import MysticIsland  # Import MysticIsland
 import game.config as config
 import game.combat as Combat
 
@@ -25,20 +26,16 @@ class World(context.Context):
             for j in range(0, World.worldsize):
                 self.locs[i].append(location.Location(i, j, self))
 
-        self.homex = random.randrange(1, World.worldsize - 2)
-        self.homey = random.randrange(1, World.worldsize - 2)
-        # Home port can't be within a 4x4 square of the start location
-        while (self.homey in range(self.starty - 4, self.starty + 5)) or (
-            self.homex in range(self.startx - 4, self.startx + 5)
-        ):
-            self.homex = random.randrange(1, World.worldsize - 2)
-            self.homey = random.randrange(1, World.worldsize - 2)
-        self.locs[self.homex][self.homey] = homeport.HomePort(
-            self.homex, self.homey, self
-        )
+        self.homex = random.randrange (1,World.worldsize-2)
+        self.homey = random.randrange (1,World.worldsize-2)
+        #Home port can't be within a 4x4 square of the start location
+        while (self.homey in range(self.starty-4, self.starty+5)) or (self.homex in range(self.startx-4, self.startx+5)):
+            self.homex = random.randrange (1,World.worldsize-2)
+            self.homey = random.randrange (1,World.worldsize-2)
+        self.locs[self.homex][self.homey] = homeport.HomePort (self.homex, self.homey, self)
 
-        # Add new islands to this list:
-        island_list = [island.Island, water7.Water7]
+        #Add new islands to this list:
+        island_list = [island.Island, MysticIsland, water7.Water7]
         for cur_island in island_list:
             placed = False
             while placed == False:
@@ -56,9 +53,9 @@ class World(context.Context):
         whirl = whirlpool.Whirlpool(self.startx + 1, self.starty, self)
         self.locs[self.startx + 1][self.starty] = whirl
 
-        # Test island: always start off next to a test island. Swap in your island to test yours.
-        testland = water7.Water7(self.startx, self.starty + 1, self)
-        self.locs[self.startx][self.starty + 1] = testland
+        #Test island: always start off next to a test island. Swap in your island to test yours.
+        testland = MysticIsland (self.startx, self.starty+1, self)
+        self.locs[self.startx][self.starty+1] = testland
 
         # Peaceful island directly to the right of the spawning location.
         peacefulIsland = PeacefulIsland.PeacefulIsland(

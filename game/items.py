@@ -112,3 +112,30 @@ class Flintlock(Item):
         self.skill = "guns"
         self.verb = "shoot"
         self.verb2 = "shoots"
+
+# New TreasureItem class
+class TreasureItem(Item):
+    def __init__(self, name, value):
+        super().__init__(name, value)
+        self.treasure = True  # Flag to identify treasure items
+
+    def __str__(self):
+        return f"{self.name} (Treasure worth {self.value} shillings)"
+
+# New Weapon class (example)
+class MysticSword(Item):
+    def __init__(self):
+        super().__init__("Mystic Sword", 500)  # Higher value for a special item
+        self.damage = (20, 80)
+        self.skill = "swords"
+        self.verb = "swing"
+        self.verb2 = "swings"
+
+# New Food class (example)
+class Food(Item):
+    def __init__(self, name, value, nutrition):
+        super().__init__(name, value)
+        self.nutrition = nutrition  # Nutritional value of the food
+
+    def __str__(self):
+        return f"{self.name} (Food, Nutrition: {self.nutrition})"
