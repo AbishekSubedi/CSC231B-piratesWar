@@ -1,4 +1,3 @@
-
 from re import I
 import game.ship as ship
 import game.crewmate as crewmate
@@ -11,13 +10,13 @@ import sys
 import datetime
 import random
 
-class Player (Context):
 
-    def __init__ (self, world, ship):
+class Player(Context):
+    def __init__(self, world, ship):
         super().__init__()
         config.the_player = self
         self.sight_range = 2
-        self.name = 'Player'
+        self.name = "Player"
         self.gameInProgress = True
         self.ship = ship
         self.world = world
@@ -29,41 +28,41 @@ class Player (Context):
         self.pirates = []
         self.piscine_dormitory = []
         self.CHARGE_SIZE = 128
-        self.powder = self.CHARGE_SIZE*random.randrange(3,7)
+        self.powder = self.CHARGE_SIZE * random.randrange(3, 7)
         self.inventory = []
-        n = random.randrange(2,6)
-        for i in range (0,n):
-            if random.randrange(0,10) == 0:
+        n = random.randrange(2, 6)
+        for i in range(0, n):
+            if random.randrange(0, 10) == 0:
                 itm: items.Item = items.Flintlock()
             else:
                 itm = items.Cutlass()
             self.inventory.append(itm)
-        n = random.randrange(2,6)
-        for i in range (0,n):
+        n = random.randrange(2, 6)
+        for i in range(0, n):
             self.inventory.append(items.BelayingPin())
         self.inventory.sort()
 
-        n = random.randrange(3,7)
-        for i in range (0,n):
+        n = random.randrange(3, 7)
+        for i in range(0, n):
             c = crewmate.CrewMate()
-            self.pirates.append (c)
+            self.pirates.append(c)
             self.nouns[c.get_name()] = c
 
-        self.verbs['quit'] = self
-        self.verbs['status'] = self
-        self.verbs['go'] = self
-        self.verbs['save'] = self
-        self.verbs['load'] = self
-        self.verbs['debug'] = self
-        self.verbs['map'] = self
-        self.verbs['inventory'] = self
-        self.verbs['restock'] = self
-        self.verbs['skills'] = self
+        self.verbs["quit"] = self
+        self.verbs["status"] = self
+        self.verbs["go"] = self
+        self.verbs["save"] = self
+        self.verbs["load"] = self
+        self.verbs["debug"] = self
+        self.verbs["map"] = self
+        self.verbs["inventory"] = self
+        self.verbs["restock"] = self
+        self.verbs["skills"] = self
 
         self.seen = []
-        for i in range (0, self.world.worldsize):
-            self.seen.append ([])
-            for j in range (0, self.world.worldsize):
+        for i in range(0, self.world.worldsize):
+            self.seen.append([])
+            for j in range(0, self.world.worldsize):
                 self.seen[i].append(False)
 
     def add_to_inventory(self, invList):
@@ -80,56 +79,61 @@ class Player (Context):
 
     def save_game(self):
         if "jsonpickle" not in sys.modules:
-            announce ("jsonpickle hasn't be imported. Saving is impossible.")
+            announce("jsonpickle hasn't be imported. Saving is impossible.")
         elif self.location != self.ship:
-            announce ("Saving is only possible abord ship.")
+            announce("Saving is only possible abord ship.")
         else:
-            announce ("saving...", end="",pause=False)
-            f = open ("save.json", "w")
-            f.write (jsonpickle.encode (self))
+            announce("saving...", end="", pause=False)
+            f = open("save.json", "w")
+            f.write(jsonpickle.encode(self))
             f.close()
-            announce ("..done")
+            announce("..done")
 
     def load_game(self):
-            if "jsonpickle" not in sys.modules:
-                announce ("jsonpickle hasn't be imported. Loading is impossible.")
-            elif self.location != self.ship:
-                announce ("Loading is only possible abord ship.")
-            else:
-                with open ("save.json") as f:
-                    s = f.read()
-                config.the_player = jsonpickle.decode (s)
-                self.go = True
+        if "jsonpickle" not in sys.modules:
+            announce("jsonpickle hasn't be imported. Loading is impossible.")
+        elif self.location != self.ship:
+            announce("Loading is only possible abord ship.")
+        else:
+            with open("save.json") as f:
+                s = f.read()
+            config.the_player = jsonpickle.decode(s)
+            self.go = True
 
-    def process_verb (self, verb, cmd_list, nouns):
-        if (verb == "quit"):
+    def process_verb(self, verb, cmd_list, nouns):
+        if verb == "quit":
             sys.exit(0)
-        elif (verb == "map"):
-            self.print_map ()
-        elif (verb == "inventory"):
-            self.print_inventory ()
-        elif (verb == "debug"):
-            announce ("home port is at:" + str(self.world.homex) + ", " + str(self.world.homey))
-            self.world.print ()
-        elif (verb == "restock"):
+        elif verb == "map":
+            self.print_map()
+        elif verb == "inventory":
+            self.print_inventory()
+        elif verb == "debug":
+            announce(
+                "home port is at:"
+                + str(self.world.homex)
+                + ", "
+                + str(self.world.homey)
+            )
+            self.world.print()
+        elif verb == "restock":
             if config.the_player.location != config.the_player.ship:
-                announce ("Powder and shot can only be restocked on the ship!")
+                announce("Powder and shot can only be restocked on the ship!")
             else:
                 for c in self.get_pirates():
                     c.restock()
-        elif (verb == "skills"):
+        elif verb == "skills":
             for c in self.get_pirates():
-                c.print_skills ()
-        elif (verb == "save"):
+                c.print_skills()
+        elif verb == "save":
             self.save_game()
 
-        elif (verb == "load"):
+        elif verb == "load":
             self.load_game()
 
-        elif (verb == "status"):
-            announce ("Day " + str(self.world.get_day()),pause=False)
+        elif verb == "status":
+            announce("Day " + str(self.world.get_day()), pause=False)
             self.status()
-        elif (verb == "go"):
+        elif verb == "go":
             self.go = True
             if len(cmd_list) > 1:
                 if cmd_list[1] == "ashore" and self.location == self.ship:
@@ -147,7 +151,7 @@ class Player (Context):
             pass
 
     @staticmethod
-    def get_interaction (contexts):
+    def get_interaction(contexts):
         # look at all of the the contexts and find the verbs and nouns
         # that make sense in this context
         # and then dispatch an action that is identified
@@ -162,54 +166,54 @@ class Player (Context):
             for k, v in c.nouns.items():
                 nouns[k] = v
 
-        cmd = input ("\nWhat is your command: ")
-        cmd_list = cmd.split()   # split on whitespace
+        cmd = input("what is your command: ")
+        cmd_list = cmd.split()  # split on whitespace
 
-        if(len(cmd_list) > 0):
-            if (cmd_list[0] in verbs.keys()):
-                verbs[cmd_list[0]].process_verb (cmd_list[0], cmd_list, nouns)
+        if len(cmd_list) > 0:
+            if cmd_list[0] in verbs.keys():
+                verbs[cmd_list[0]].process_verb(cmd_list[0], cmd_list, nouns)
             elif len(cmd_list) > 1 and (cmd_list[0] in nouns.keys()):
-                nouns[cmd_list[0]].process_verb (cmd_list[1], cmd_list[1:], nouns)
+                nouns[cmd_list[0]].process_verb(cmd_list[1], cmd_list[1:], nouns)
             else:
-                announce (" I did not understand that command of " + cmd_list[0])
-
-
+                announce(" I did not understand that command of " + cmd_list[0])
 
     # get / process input
     def process_day(self):
-
         # update the player's map
         # get ships location and then look at the range around them
         ship_loc = self.ship.get_loc()
         x = ship_loc.get_x()
         y = ship_loc.get_y()
-        for ix in range (x-self.sight_range, x+self.sight_range+1):
-            for iy in range (y-self.sight_range, y+self.sight_range+1):
-                if ((ix >=0) and (ix < self.world.worldsize) and (iy >=0) and (iy < self.world.worldsize)):
+        for ix in range(x - self.sight_range, x + self.sight_range + 1):
+            for iy in range(y - self.sight_range, y + self.sight_range + 1):
+                if (
+                    (ix >= 0)
+                    and (ix < self.world.worldsize)
+                    and (iy >= 0)
+                    and (iy < self.world.worldsize)
+                ):
                     self.seen[ix][iy] = True
 
         self.go = False
 
-        if (self.reporting):
-            announce ("☠️ ⚔️  Captain's Log: Day " + str(self.world.get_day()),pause=False)
+        if self.reporting:
+            announce("Captain's Log: Day " + str(self.world.get_day()), pause=False)
             self.status()
 
-        if (self.ship.get_food()<0):
+        if self.ship.get_food() < 0:
             self.gameInProgress = False
-            announce (" everyone starved!!!!!!!!!!")
+            announce(" everyone starved!!!!!!!!!!")
             config.the_player.kill_all_pirates("died of sudden-onset starvation")
             return
 
+        while self.go == False:
+            Player.get_interaction([self, self.ship])
 
-        while (self.go == False):
-            Player.get_interaction ([self, self.ship])
-
-
-    def notdone (self):
-        self.cleanup_pirates ()
+    def notdone(self):
+        self.cleanup_pirates()
         return self.gameInProgress
 
-    def times_up (self):
+    def times_up(self):
         self.gameInProgress = False
 
     def status (self):
@@ -217,61 +221,66 @@ class Player (Context):
         loc = self.ship.get_loc()
         announce (str(loc.get_x()) + ", " + str(loc.get_y()),pause=False)
         announce ("---> Food stores are at: " + str (self.ship.get_food()),pause=False)
-        announce ("---> Powder stores are at: " + str (self.powder//self.CHARGE_SIZE) + " cannon " + str (self.powder%self.CHARGE_SIZE) + " sidearm",pause=False)
+        announce ("---> Powder stores are at: "
+                  + str (self.powder//self.CHARGE_SIZE)
+                  + " cannon "
+                  + str (self.powder%self.CHARGE_SIZE)
+                  + " sidearm",
+                  pause=False
+                 )
         self.ship.print ()
         for crew in self.get_pirates():
             crew.print()
 
-    def print (self):
+    def print(self):
         self.ship.print()
         for crew in self.get_pirates():
             crew.print()
 
-
-    def get_ship (self):
+    def get_ship(self):
         return self.ship
 
     def get_world(self):
         return self.world
 
-    def get_pirates (self):
+    def get_pirates(self):
         live_pirates = [p for p in self.pirates if p.health > 0]
         if len(live_pirates) <= 0 and self.gameInProgress == True:
-            self.cleanup_pirates() #calls game over
+            self.cleanup_pirates()  # calls game over
         return live_pirates
 
-    def cleanup_pirates (self):
+    def cleanup_pirates(self):
         i = 0
         recovery_possible = True
-        #avoid endless recursion between get pirates and cleanup pirates
+        # avoid endless recursion between get pirates and cleanup pirates
         live_pirates = [p for p in self.pirates if p.health > 0]
         if len(live_pirates) <= 0:
             recovery_possible = False
 
         while i < len(self.pirates):
-            if (self.pirates[i].health <= 0):
+            if self.pirates[i].health <= 0:
                 deader = self.pirates.pop(i)
                 self.add_to_inventory(deader.items)
                 deader.items = []
                 self.piscine_dormitory.append(deader)
             else:
                 i = i + 1
-        if (len(self.pirates) <= 0):
-            announce (" everyone died!!!!!!!!!!")
+        if len(self.pirates) <= 0:
+            announce(" everyone died!!!!!!!!!!")
             Player.game_over()
 
-    def kill_all_pirates (self, deathcause):
-        announce (" everyone died!!!!!!!!!!")
+    def kill_all_pirates(self, deathcause):
+        announce(" everyone died!!!!!!!!!!")
         while len(self.pirates) > 0:
             deader = self.pirates.pop()
-            if(deader.death_cause == ""):
+            if deader.death_cause == "":
                 deader.death_cause = deathcause
             self.add_to_inventory(deader.items)
             deader.items = []
             self.piscine_dormitory.append(deader)
         Player.game_over()
 
-    def add_to_inventory (self, invList):
+    def add_to_inventory(self, invList):
         self.inventory = self.inventory + invList
         self.inventory.sort()
 
@@ -279,30 +288,31 @@ class Player (Context):
         for pirate in self.pirates:
             pirate.items = [itm for itm in pirate.items if not itm.usedUp]
 
-    def print_map (self):
+    def print_map(self):
         ship_loc = self.ship.get_loc()
-        for y in range (0, self.world.worldsize):
-            for x in range (0, self.world.worldsize):
-                if (self.world.locs[x][y] == ship_loc):
-                    print ("S", end="")
-                elif (self.seen[x][y]):
-                    print (self.world.locs[x][y].get_symbol(), end="")
+        for y in range(0, self.world.worldsize):
+            for x in range(0, self.world.worldsize):
+                if self.world.locs[x][y] == ship_loc:
+                    print("S", end="")
+                elif self.seen[x][y]:
+                    print(self.world.locs[x][y].get_symbol(), end="")
                 else:
-                    print ("?", end="")
-            print ()
+                    print("?", end="")
+            print()
 
     def print_inventory(self):
         for i in self.inventory:
-            item_desc = str(i)
+           item_desc = str(i)
             if isinstance(i, items.TreasureItem):
                 item_desc += f" (Treasure worth {i.value} shillings)"
             print(item_desc)
+
         print()
 
     @staticmethod
-    def game_over ():
+    def game_over():
         config.the_player.gameInProgress = False
-        #open high score
+        # open high score
         Player.record_score()
         sys.exit(0)
 
@@ -313,7 +323,7 @@ class Player (Context):
         score = 0
         multiplier = 1
         if len(config.the_player.pirates) <= 0:
-            multiplier = .5 #living to spend it is half the fun.
+            multiplier = 0.5  # living to spend it is half the fun.
         else:
             for c in config.the_player.pirates:
                 score += c.health * 10
@@ -323,7 +333,7 @@ class Player (Context):
             if isinstance(t, items.TreasureItem):
                 score += t.value  # Add treasure value to score
 
-        score = score*multiplier
+        score = score * multiplier
         f.write(now.strftime("%A %B %d, %Y") + " " + str(score) + " points\n")
         for c in config.the_player.pirates:
             f.write(str(c) + "lived to tell the tale\n")
